@@ -1,4 +1,4 @@
-# Serilog.Sinks.MSSqlServer
+# Ketrex.Serilog.Sinks.MSSqlServer
 
 A Serilog sink that writes events to Microsoft SQL Server. This sink will write the logevent data to a table and can optionally also store the properties inside an Xml column so they can be queried.
 
