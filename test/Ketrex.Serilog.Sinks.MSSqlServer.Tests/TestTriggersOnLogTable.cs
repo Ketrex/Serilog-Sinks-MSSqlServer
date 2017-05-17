@@ -3,6 +3,7 @@ using System.Data.SqlClient;
 using System.Diagnostics;
 using Dapper;
 using FluentAssertions;
+using Ketrex.Serilog.Sinks.MSSqlServer;
 using Xunit;
 
 namespace Serilog.Sinks.MSSqlServer.Tests

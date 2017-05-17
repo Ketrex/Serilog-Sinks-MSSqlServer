@@ -12,30 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#if NET45
-namespace Serilog.Configuration
-{
-    using System;
-    using System.Configuration;
+#if NET452
+using System.Configuration;
+using Ketrex.Serilog.Sinks.MSSqlServer.Configuration;
 
+namespace Ketrex.Serilog.Sinks.MSSqlServer.Configuration
+{
     /// <summary>
     /// Settings configuration for defining DataColumns collection
     /// </summary>
     public class MSSqlServerConfigurationSection : ConfigurationSection
     {
-        private static MSSqlServerConfigurationSection settings =
-            ConfigurationManager.GetSection("MSSqlServerSettings") as MSSqlServerConfigurationSection;
-
         /// <summary>
         /// Access to the settings stored in the config file
         /// </summary>
-        public static MSSqlServerConfigurationSection Settings
-        {
-            get
-            {
-                return settings;
-            }
-        }
+        public static MSSqlServerConfigurationSection Settings { get; } = ConfigurationManager.GetSection("MSSqlServerSettings") as MSSqlServerConfigurationSection;
 
         /// <summary>
         /// Columns in the database to write data into
@@ -45,13 +36,7 @@ namespace Serilog.Configuration
             AddItemName = "add",
             ClearItemsName = "clear",
             RemoveItemName = "remove")]
-        public ColumnCollection Columns
-        {
-            get
-            {
-                return (ColumnCollection)base["Columns"];
-            }
-        }
+        public ColumnCollection Columns => (ColumnCollection)base["Columns"];
     }
 }
 #endif

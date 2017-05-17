@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using Dapper;
 using FluentAssertions;
+using Ketrex.Serilog.Sinks.MSSqlServer;
 using Serilog.Events;
 using Xunit;
 
@@ -28,7 +29,12 @@ namespace Serilog.Sinks.MSSqlServer.Tests
                 .CreateLogger();
 
             var file = File.CreateText("LevelAsEnum.True.Enum.Self.log");
+#if NETCOREAPP1_1
+            Serilog.Debugging.SelfLog.Enable(file);
+#endif
+#if NET452
             Serilog.Debugging.SelfLog.Enable(TextWriter.Synchronized(file));
+#endif
 
             // act
             const string loggingInformationMessage = "Logging Information message";
@@ -60,7 +66,13 @@ namespace Serilog.Sinks.MSSqlServer.Tests
                 .CreateLogger();
 
             var file = File.CreateText("LevelAsEnum.False.Self.log");
+            
+#if NETCOREAPP1_1
+            Serilog.Debugging.SelfLog.Enable(file);
+#endif
+#if NET452
             Serilog.Debugging.SelfLog.Enable(TextWriter.Synchronized(file));
+#endif
 
             // act
             const string loggingInformationMessage = "Logging Information message";

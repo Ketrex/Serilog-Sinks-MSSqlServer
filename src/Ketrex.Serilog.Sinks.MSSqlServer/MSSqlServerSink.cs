@@ -15,22 +15,21 @@
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
-#if NET45
+#if NET452
 using System.Data;
 #endif
 #if NETCORE
-using Serilog.Models;
+using Ketrex.Serilog.Sinks.MSSqlServer.Models;
 #endif
 using System.Linq;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using Serilog.Debugging;
 using Serilog.Events;
 using Serilog.Formatting.Json;
 using Serilog.Sinks.PeriodicBatching;
 
-namespace Serilog.Sinks.MSSqlServer
+namespace Ketrex.Serilog.Sinks.MSSqlServer
 {
     /// <summary>
     ///     Writes log events as rows in a table of MSSqlServer database.
@@ -59,8 +58,7 @@ namespace Serilog.Sinks.MSSqlServer
         private readonly HashSet<string> _additionalDataColumnNames;
 
         private readonly JsonFormatter _jsonFormatter;
-
-
+        
         /// <summary>
         ///     Construct a sink posting to the specified database.
         /// </summary>
@@ -85,10 +83,10 @@ namespace Serilog.Sinks.MSSqlServer
             : base(batchPostingLimit, period)
         {
             if (string.IsNullOrWhiteSpace(connectionString))
-                throw new ArgumentNullException("connectionString");
+                throw new ArgumentNullException(nameof(connectionString));
 
             if (string.IsNullOrWhiteSpace(tableName))
-                throw new ArgumentNullException("tableName");
+                throw new ArgumentNullException(nameof(tableName));
 
             _connectionString = connectionString;
             _tableName = tableName;
@@ -113,7 +111,7 @@ namespace Serilog.Sinks.MSSqlServer
                 }
                 catch (Exception ex)
                 {
-                    SelfLog.WriteLine("Exception {0} caught while creating table {1} to the database specified in the Connection string.", (object)ex, (object)tableName);
+                    SelfLog.WriteLine("Exception {0} caught while creating table {1} to the database specified in the Connection string.", ex, tableName);
                 }
 
             }
@@ -131,17 +129,18 @@ namespace Serilog.Sinks.MSSqlServer
         protected override async Task EmitBatchAsync(IEnumerable<LogEvent> events)
         {
             // Copy the events to the data table
-            FillDataTable(events);
+            var logEvents = events as LogEvent[] ?? events.ToArray();
+            FillDataTable(logEvents);
 
             try
             {
-                var destinationTableName = string.Format("[{0}].[{1}]", _schemaName, _tableName);
+                var destinationTableName = $"[{_schemaName}].[{_tableName}]";
 
                 using (var cn = new SqlConnection(_connectionString))
                 {
                     await cn.OpenAsync().ConfigureAwait(false);
 
-#if NET45
+#if NET452
                    using (var copy = _columnOptions.DisableTriggers
                             ? new SqlBulkCopy(cn)
                             : new SqlBulkCopy(cn, SqlBulkCopyOptions.CheckConstraints | SqlBulkCopyOptions.FireTriggers, null)
@@ -170,7 +169,8 @@ namespace Serilog.Sinks.MSSqlServer
 
                     foreach (var eventsTableRow in _eventsTable.Rows)
                     {
-                        var rows = string.Join(", ", insertedColumns.Select(x => $"@{x.ColumnName}_{i}"));
+                        var ii = i;
+                        var rows = string.Join(", ", insertedColumns.Select(x => $"@{x.ColumnName}_{ii}"));
                         commandString.Append($"({rows}),");
                         foreach (var eventsTableColumn in insertedColumns)
                         {
@@ -183,14 +183,7 @@ namespace Serilog.Sinks.MSSqlServer
                     {
                         foreach (var key in parameterDictionary.Keys)
                         {
-                            if (parameterDictionary[key] == null)
-                            {
-                                command.Parameters.AddWithValue(key, DBNull.Value);
-                            }
-                            else
-                            {
-                                command.Parameters.AddWithValue(key, parameterDictionary[key]);
-                            }
+                            command.Parameters.AddWithValue(key, parameterDictionary[key] ?? DBNull.Value);
                         }
                         await command.ExecuteNonQueryAsync();
                     }
@@ -199,7 +192,7 @@ namespace Serilog.Sinks.MSSqlServer
             }
             catch (Exception ex)
             {
-                SelfLog.WriteLine("Unable to write {0} log events to the database due to following error: {1}", events.Count(), ex.Message);
+                SelfLog.WriteLine("Unable to write {0} log events to the database due to following error: {1}", logEvents.Length, ex.Message);
             }
             finally
             {
@@ -310,7 +303,7 @@ namespace Serilog.Sinks.MSSqlServer
                             row[_columnOptions.Message.ColumnName ?? "Message"] = logEvent.RenderMessage(_formatProvider);
                             break;
                         case StandardColumn.MessageTemplate:
-#if NET45
+#if NET452
                             row[_columnOptions.MessageTemplate.ColumnName ?? "MessageTemplate"] = logEvent.MessageTemplate;
 #endif
 #if NETCORE
@@ -324,7 +317,7 @@ namespace Serilog.Sinks.MSSqlServer
                             row[_columnOptions.TimeStamp.ColumnName ?? "TimeStamp"] = _columnOptions.TimeStamp.ConvertToUtc ? logEvent.Timestamp.DateTime.ToUniversalTime() : logEvent.Timestamp.DateTime;
                             break;
                         case StandardColumn.Exception:
-                            row[_columnOptions.Exception.ColumnName ?? "Exception"] = logEvent.Exception != null ? logEvent.Exception.ToString() : null;
+                            row[_columnOptions.Exception.ColumnName ?? "Exception"] = logEvent.Exception?.ToString();
                             break;
                         case StandardColumn.Properties:
                             row[_columnOptions.Properties.ColumnName ?? "Properties"] = ConvertPropertiesToXmlStructure(logEvent.Properties);
@@ -345,7 +338,7 @@ namespace Serilog.Sinks.MSSqlServer
                 _eventsTable.Rows.Add(row);
             }
 
-#if NET45
+#if NET452
             _eventsTable.AcceptChanges();
 #endif
         }
@@ -466,10 +459,8 @@ namespace Serilog.Sinks.MSSqlServer
         /// <param name="disposing"></param>
         protected override void Dispose(bool disposing)
         {
-            if (_eventsTable != null)
-                _eventsTable.Dispose();
-
             base.Dispose(disposing);
+            _eventsTable?.Dispose();
         }
     }
 }

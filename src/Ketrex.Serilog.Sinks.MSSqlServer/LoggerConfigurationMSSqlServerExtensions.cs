@@ -1,16 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Data;
+using Ketrex.Serilog.Sinks.MSSqlServer;
 using Serilog.Configuration;
-using Serilog.Events;
-using Serilog.Sinks.MSSqlServer;
 using Serilog.Debugging;
-#if NET45
+using Serilog.Events;
+#if NET452
 using System.Configuration;
+using Ketrex.Serilog.Sinks.MSSqlServer.Configuration;
 #endif
 #if NETCORE
-using Serilog.Models;
+using Ketrex.Serilog.Sinks.MSSqlServer.Models;
 #endif
 
 // Copyright 2014 Serilog Contributors
@@ -65,11 +65,11 @@ namespace Serilog
             string schemaName = "dbo"
             )
         {
-            if (loggerConfiguration == null) throw new ArgumentNullException("loggerConfiguration");
+            if (loggerConfiguration == null) throw new ArgumentNullException(nameof(loggerConfiguration));
 
             var defaultedPeriod = period ?? MSSqlServerSink.DefaultPeriod;
 
-#if NET45
+#if NET452
             MSSqlServerConfigurationSection serviceConfigSection =
                ConfigurationManager.GetSection("MSSqlServerSettingsSection") as MSSqlServerConfigurationSection;
 
@@ -100,7 +100,7 @@ namespace Serilog
                 restrictedToMinimumLevel);
         }
 
-#if NET45
+#if NET452
         /// <summary>
         /// Examine if supplied connection string is a reference to an item in the "ConnectionStrings" section of web.config
         /// If it is, return the ConnectionStrings item, if not, return string as supplied.

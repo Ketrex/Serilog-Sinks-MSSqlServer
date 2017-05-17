@@ -1,15 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-#if NET45
-using System.Data;
+#if NET452
+    using System.Data;
 #endif
 #if NETCORE
-using Serilog.Models;
+using Ketrex.Serilog.Sinks.MSSqlServer.Models;
 #endif
 
-namespace Serilog.Sinks.MSSqlServer
+namespace Ketrex.Serilog.Sinks.MSSqlServer
 {
+
     /// <summary>
     ///     Options that pertain to columns
     /// </summary>

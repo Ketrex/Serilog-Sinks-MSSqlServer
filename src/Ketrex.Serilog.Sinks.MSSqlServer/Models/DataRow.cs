@@ -1,5 +1,5 @@
 ﻿#if NETCORE
-namespace Serilog.Models
+namespace Ketrex.Serilog.Sinks.MSSqlServer.Models
 {
     using System.Collections.Generic;
 

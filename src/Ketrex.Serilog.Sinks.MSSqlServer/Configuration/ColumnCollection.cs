@@ -12,10 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#if NET45
-namespace Serilog.Configuration
+#if NET452
+namespace Ketrex.Serilog.Sinks.MSSqlServer.Configuration
 {
-    using System;
     using System.Configuration;
 
     /// <summary>

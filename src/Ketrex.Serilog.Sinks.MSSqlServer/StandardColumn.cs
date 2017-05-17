@@ -1,4 +1,4 @@
-﻿namespace Serilog.Sinks.MSSqlServer
+﻿namespace Ketrex.Serilog.Sinks.MSSqlServer
 {
     /// <summary>
     ///     List of columns that are available to be written to the database, excluding Id and additional columns.

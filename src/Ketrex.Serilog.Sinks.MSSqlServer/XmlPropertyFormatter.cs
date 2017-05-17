@@ -13,14 +13,14 @@
 // limitations under the License.
 
 using System;
-using System.Globalization;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using Serilog.Events;
 
-namespace Serilog.Sinks.MSSqlServer
+namespace Ketrex.Serilog.Sinks.MSSqlServer
 {
     /// <summary>
     ///     Converts <see cref="LogEventProperty" /> values into simple scalars,
@@ -37,20 +37,20 @@ namespace Serilog.Sinks.MSSqlServer
         /// <returns>A simplified representation.</returns>
         public static string Simplify(LogEventPropertyValue value, ColumnOptions.PropertiesColumnOptions options)
         {
-            var scalar = value as ScalarValue;
+            ScalarValue scalar = value as ScalarValue;
             if (scalar != null)
                 return SimplifyScalar(scalar.Value);
 
-            var dict = value as DictionaryValue;
+            DictionaryValue dict = value as DictionaryValue;
             if (dict != null)
             {
-                var sb = new StringBuilder();
+                StringBuilder sb = new StringBuilder();
 
                 bool isEmpty = true;
 
-                foreach (var element in dict.Elements)
+                foreach (KeyValuePair<ScalarValue, LogEventPropertyValue> element in dict.Elements)
                 {
-                    var itemValue = Simplify(element.Value, options);
+                    string itemValue = Simplify(element.Value, options);
                     if (options.OmitElementIfEmpty && string.IsNullOrEmpty(itemValue))
                     {
                         continue;
@@ -65,7 +65,7 @@ namespace Serilog.Sinks.MSSqlServer
                         }
                     }
 
-                    var key = SimplifyScalar(element.Key.Value);
+                    string key = SimplifyScalar(element.Key.Value);
                     if (options.UsePropertyKeyAsElementName)
                     {
                         sb.AppendFormat("<{0}>{1}</{0}>", GetValidElementName(key), itemValue);
@@ -84,16 +84,16 @@ namespace Serilog.Sinks.MSSqlServer
                 return sb.ToString();
             }
 
-            var seq = value as SequenceValue;
+            SequenceValue seq = value as SequenceValue;
             if (seq != null)
             {
-                var sb = new StringBuilder();
+                StringBuilder sb = new StringBuilder();
 
                 bool isEmpty = true;
 
-                foreach (var element in seq.Elements)
+                foreach (LogEventPropertyValue element in seq.Elements)
                 {
-                    var itemValue = Simplify(element, options);
+                    string itemValue = Simplify(element, options);
                     if (options.OmitElementIfEmpty && string.IsNullOrEmpty(itemValue))
                     {
                         continue;
@@ -119,18 +119,18 @@ namespace Serilog.Sinks.MSSqlServer
                 return sb.ToString();
             }
 
-            var str = value as StructureValue;
+            StructureValue str = value as StructureValue;
             if (str != null)
             {
-                var props = str.Properties.ToDictionary(p => p.Name, p => Simplify(p.Value, options));
+                Dictionary<string, string> props = str.Properties.ToDictionary(p => p.Name, p => Simplify(p.Value, options));
 
-                var sb = new StringBuilder();
+                StringBuilder sb = new StringBuilder();
 
                 bool isEmpty = true;
 
-                foreach (var element in props)
+                foreach (KeyValuePair<string, string> element in props)
                 {
-                    var itemValue = element.Value;
+                    string itemValue = element.Value;
                     if (options.OmitElementIfEmpty && string.IsNullOrEmpty(itemValue))
                     {
                         continue;

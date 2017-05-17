@@ -13,11 +13,11 @@ namespace Serilog.Sinks.MSSqlServer.Tests
 
         private const string CreateLogEventsDatabase = @"
 EXEC ('CREATE DATABASE [{0}] ON PRIMARY 
-	(NAME = [{0}], 
-	FILENAME =''{1}'', 
-	SIZE = 25MB, 
-	MAXSIZE = 50MB, 
-	FILEGROWTH = 5MB )')";
+    (NAME = [{0}], 
+    FILENAME =''{1}'', 
+    SIZE = 25MB, 
+    MAXSIZE = 50MB, 
+    FILEGROWTH = 5MB )')";
 
         private static readonly string DatabaseFileNameQuery = $@"SELECT CONVERT(VARCHAR(255), SERVERPROPERTY('instancedefaultdatapath')) + '{Database}.mdf' AS Name";
         private static readonly string DropLogEventsDatabase = $@"

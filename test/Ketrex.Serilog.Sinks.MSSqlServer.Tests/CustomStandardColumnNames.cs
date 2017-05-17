@@ -8,6 +8,7 @@ using System.Linq;
 using Dapper;
 using Xunit;
 using FluentAssertions;
+using Ketrex.Serilog.Sinks.MSSqlServer;
 
 namespace Serilog.Sinks.MSSqlServer.Tests
 {
@@ -161,7 +162,12 @@ namespace Serilog.Sinks.MSSqlServer.Tests
                 .CreateLogger();
 
             var file = File.CreateText("CustomColumnsEvent.Self.log");
+#if NETCOREAPP1_1
+            Serilog.Debugging.SelfLog.Enable(file);
+#endif
+#if NET452
             Serilog.Debugging.SelfLog.Enable(TextWriter.Synchronized(file));
+#endif
 
             // act
             const string loggingInformationMessage = "Logging Information message";
@@ -192,7 +198,12 @@ namespace Serilog.Sinks.MSSqlServer.Tests
                 .CreateLogger();
 
             var file = File.CreateText("StandardColumns.Self.log");
+#if NETCOREAPP1_1
+            Serilog.Debugging.SelfLog.Enable(file);
+#endif
+#if NET452
             Serilog.Debugging.SelfLog.Enable(TextWriter.Synchronized(file));
+#endif
 
             // act
             const string loggingInformationMessage = "Logging Information message";
