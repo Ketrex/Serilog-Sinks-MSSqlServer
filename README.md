@@ -1,11 +1,9 @@
 # Serilog.Sinks.MSSqlServer
 
-[![Build status](https://ci.appveyor.com/api/projects/status/3btbux1hbgyugind/branch/master?svg=true)](https://ci.appveyor.com/project/serilog/serilog-sinks-mssqlserver/branch/master)
+A Serilog sink that writes events to Microsoft SQL Server. This sink will write the logevent data to a table and can optionally also store the properties inside an Xml column so they can be queried.
 
-A Serilog sink that writes events to Microsoft SQL Server. While a NoSql store allows for more flexibility to store the different kinds of properties, it sometimes is easier to use an already existing MS SQL server. This sink will write the logevent data to a table and can optionally also store the properties inside an Xml column so they can be queried.
-
-**Package** - [Ketrex.Serilog.Sinks.MSSqlServerCore](http://www.nuget.org/packages/Serilog.Sinks.MSSqlServerCore/)
-| **Platforms** - .NET 4.5, Netstandard 1.2
+**Package** - [Ketrex.Serilog.Sinks.MSSqlServer](https://www.nuget.org/packages/Ketrex.Serilog.Sinks.MSSqlServer/)
+| **Platforms** - .NET 4.52, Netstandard 1.2
 
 **Original Package** - [Serilog.Sinks.MSSqlServer](http://nuget.org/packages/serilog.sinks.mssqlserver)
 
@@ -41,7 +39,11 @@ If you are configuring Serilog with the `ReadFrom.AppSettings()` XML configurati
 
 ## Table definition
 
-You'll need to create a table like this in your database:
+### Automatic table creation
+
+If you set the `autoCreateSqlTable` option to `true`, the sink will create a table for you in the database specified in the connection string.  Make sure that the user associated with this connection string has enough rights to make schema changes.
+
+If you do not want the table to be automatically created, you'll need to create a table like this in your database:
 
 ```
 CREATE TABLE [Logs] (
@@ -69,12 +71,6 @@ CREATE TABLE [Logs] (
 If you don't plan on using one or more columns, you can specify which columns to include in the *columnOptions.Store* parameter (see below). 
 
 The Level column should be defined as a TinyInt if the *columnOptions.Level.StoreAsEnum* is set to true.
-
-
-### Automatic table creation
-
-If you set the `autoCreateSqlTable` option to `true`, the sink will create a table for you in the database specified in the connection string.  Make sure that the user associated with this connection string has enough rights to make schema changes.
-
 
 ## Standard columns
 
