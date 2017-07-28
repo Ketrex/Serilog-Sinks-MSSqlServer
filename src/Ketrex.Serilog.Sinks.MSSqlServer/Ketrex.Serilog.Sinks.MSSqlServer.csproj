@@ -17,7 +17,7 @@
     <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
     <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
     <Company>Serilog; Ketrex</Company>
-    <Version>1.0.1</Version>
+    <Version>1.0.2</Version>
     <Product>Ketrex.Serilog.Sinks.MSSqlServer</Product>
     <RepositoryUrl>https://github.com/Ketrex/serilog-sinks-mssqlservercore</RepositoryUrl>
     <RootNamespace>Ketrex.Serilog.Sinks.MSSqlServer</RootNamespace>
