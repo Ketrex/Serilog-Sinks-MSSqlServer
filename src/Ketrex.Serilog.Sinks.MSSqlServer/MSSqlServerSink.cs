@@ -174,7 +174,15 @@ namespace Ketrex.Serilog.Sinks.MSSqlServer
                         commandString.Append($"({rows}),");
                         foreach (var eventsTableColumn in insertedColumns)
                         {
-                            parameterDictionary[$"@{eventsTableColumn.ColumnName}_{i}"] = Convert.ChangeType(eventsTableRow[eventsTableColumn.ColumnName], eventsTableColumn.DataType);
+                            var columnName = $"@{eventsTableColumn.ColumnName}_{i}";
+                            if (!eventsTableRow.ContainsKey(eventsTableColumn.ColumnName) && eventsTableColumn.AllowDBNull) 
+                            {
+                                parameterDictionary[columnName] = DBNull.Value;
+                            } 
+                            else 
+                            {
+                                parameterDictionary[columnName] = Convert.ChangeType(eventsTableRow[eventsTableColumn.ColumnName], eventsTableColumn.DataType);
+                            }
                         }
                         i++;
                     }
